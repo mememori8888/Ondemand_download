@@ -27,7 +27,13 @@ import csv
 
 import random
 from webdriver_manager.chrome import ChromeDriverManager
-# from TL import all_user_df
+
+
+###################################################################
+# 以下を3つのwebサイトで行う
+
+
+    # from TL import all_user_df
 #ランダム数の作成
 randomC = random.uniform(1,3)
 
@@ -152,9 +158,7 @@ half_a_year_ago_str = half_a_year_ago.strftime("%Y-%m-%d")
 a_year_ago = today - timedelta(days=360)
 a_year_ago_str = a_year_ago.strftime("%Y-%m-%d")
 
-###################################################################
-# 以下を3つのwebサイトで行う
-for web_count in range(0,3,1):
+for web_count in range(0,len(url_list),1):
     print('{}番目のtwift'.format(web_count))
         # ダウンロードされるファイル 7 14 30 45 60 75 90
     dl1 = 'stat-data-{}.xlsx'.format(today_str)
@@ -179,13 +183,16 @@ for web_count in range(0,3,1):
     files = [dl1,dl2,dl3,dl4,dl5,dl6]
     driver.get(url_list[web_count])
     unique_file_name = Uniqe_files[web_count]
-    #twiftにLogin
-    login = driver.find_element(By.ID,'uname')
-    login.send_keys(login_list[web_count])
-    PW = driver.find_element(By.ID,'password')
-    PW.send_keys(pw_list[web_count])
-    login_button = driver.find_element(By.ID,'submit')
-    login_button.click()
+    try:
+        #twiftにLogin
+        login = driver.find_element(By.ID,'uname')
+        login.send_keys(login_list[web_count])
+        PW = driver.find_element(By.ID,'password')
+        PW.send_keys(pw_list[web_count])
+        login_button = driver.find_element(By.ID,'submit')
+        login_button.click()
+    except:
+        continue
     #一括処理にアクセス
     batch_processing = driver.find_element(By.XPATH,'//*[@id="sidebar"]/ul/li[7]/a')
     batch_processing.click()

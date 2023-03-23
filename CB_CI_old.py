@@ -27,9 +27,9 @@ import csv
 
 import random
 from webdriver_manager.chrome import ChromeDriverManager
-import threading
+
 #ランダム数の作成
-randomC = random.uniform(1,3)
+randomC = random.uniform(3,5)
 
 ##chormeのオプションを指定
 options = webdriver.ChromeOptions()
@@ -102,6 +102,7 @@ for i in range(0,count,1):
     driver.get(url)
     # account_name = user_df.iloc[i,3]
     user_name = user_df.iloc[i,1]
+    user_name = str(user_name)
     print('分岐点{}'.format(user_name))
     if user_name == '-':
         continue
@@ -394,12 +395,12 @@ for i in range(0,count,1):
 # スプレッドシートを開く
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-import xlrd
+
 
 scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
 creds = ServiceAccountCredentials.from_json_keyfile_name('ondemand-380101-8fe6bd6d0cb0.json', scope)
 client = gspread.authorize(creds)
-spreadsheet_name = 'TWダッシュボード のコピー'
+spreadsheet_name = 'TWダッシュボード'
 worksheet_name = 'TWダッシュボード'
 sheet = client.open(spreadsheet_name).worksheet(worksheet_name)
 # sheet.update('E19', col_E_list)

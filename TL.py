@@ -28,6 +28,8 @@ import csv
 import random
 from webdriver_manager.chrome import ChromeDriverManager
 import threading
+
+
 #ランダム数の作成
 randomC = random.uniform(1,3)
 
@@ -49,9 +51,9 @@ options.add_argument("--enable-webgl")
 options.add_argument('--enable-accelerated-2d-canvas')
 options.add_argument("--renderer-process-limit=5")
 
-filename = '/home/mamhidet/usr/Ondemand_co/twiftB_account.xlsx'
-filename2 = '/home/mamhidet/usr/Ondemand_co/twiftA_account.xlsx'
-filename3 = '/home/mamhidet/usr/Ondemand_co/twiftC_account.xlsx'
+filename = 'twiftB_account.xlsx'
+filename2 = 'twiftA_account.xlsx'
+filename3 = 'twiftC_account.xlsx'
 account_file_list = [filename,filename2,filename3]
 
 desiredcapabilities = DesiredCapabilities.CHROME.copy()
@@ -90,7 +92,10 @@ all_u_param_df = pd.DataFrame()
 # スプレッドシートのcol_E_list
 col_E_list = []
 BJ_BL_list = []
-blank_list = ['','','','','','','','','']
+blank_list = ['','','','']
+blank_list_E = ['']
+col_B_list = []
+blank_list_B = ['']
 
 
 #csvから8ユーザー名取得
@@ -114,7 +119,7 @@ for file_count in range(0,len(account_file_list),1):
 
             elem_searchword.send_keys('@'+ user_name)
         except:
-            output_list = [account_name,user_name,'接続エラー','接続エラー','接続エラー','接続エラー','接続エラー','接続エラー','接続エラー']
+            output_list = [account_name,user_name,'接続エラー','接続エラー','接続エラー','接続エラー','接続エラー','接続エラー','接続エラー','接続エラー']
             print(output_list)
             
             #csvに出力
@@ -123,26 +128,32 @@ for file_count in range(0,len(account_file_list),1):
                 writer.writerow(output_list)
                 f.close()
             #update用リスト
-            col_E_list.append(output_list[3])
-            col_E_list.append(blank_list)
-            col_E_list.append(blank_list)
-            col_E_list.append(blank_list)
+            col_B_list.append([output_list[2]])
+       
+            col_E_list.append([output_list[3]])
+        
             BJ_BL_list.append([output_list[6],output_list[7],output_list[8],output_list[0]])
-            BJ_BL_list.append(blank_list)
-            BJ_BL_list.append(blank_list)
-            BJ_BL_list.append(blank_list)
+            
             print(len(BJ_BL_list))
             # all_u_param_df = pd.DataFrame([output_list])
             # all_user_df = pd.concat([all_user_df,all_u_param_df])
             continue
         time.sleep(randomC)
+         #ポップアップの削除
+        try:
+            popup = driver.find_element(By.CLASS_NAME,'css-18t94o4.css-1dbjc4n.r-1niwhzg.r-1ets6dv.r-sdzlij.r-1phboty.r-rs99b7.r-1wzrnnt.r-19yznuf.r-64el8z.r-1ny4l3l.r-1dye5f7.r-o7ynqc.r-6416eg.r-lrvibr')
+            popup.click()
+            print('ポップアップ削除')
+        except:
+            pass
+        
         #サーチワード入力後、サジェストをクリック
         # css-1dbjc4n r-1iusvr4 r-16y2uox
         try:
             sujest_elem = driver.find_element(By.CLASS_NAME,'css-1dbjc4n.r-12181gd.r-1pi2tsx.r-1ny4l3l.r-13qz1uu')
             sujest_elem.click()
         except:
-            output_list = [account_name,user_name,'アカウントエラー','アカウントエラー','アカウントエラー','アカウントエラー','アカウントエラー','アカウントエラー','アカウントエラー']
+            output_list = [account_name,user_name,'アカウントエラー','アカウントエラー','アカウントエラー','アカウントエラー','アカウントエラー','アカウントエラー','アカウントエラー','アカウントエラー']
             print(output_list)
             #追加用のdf
             with open('all_user.csv',"a",newline='',encoding="cp932", errors='replace') as f:
@@ -150,18 +161,26 @@ for file_count in range(0,len(account_file_list),1):
                 writer.writerow(output_list)
             f.close()
             #update用リスト
-            col_E_list.append(output_list[3])
-            col_E_list.append(blank_list)
-            col_E_list.append(blank_list)
-            col_E_list.append(blank_list)
+            col_B_list.append([output_list[2]])
+      
+            col_E_list.append([output_list[3]])
+        
             BJ_BL_list.append([output_list[6],output_list[7],output_list[8],output_list[0]])
-            BJ_BL_list.append(blank_list)
-            BJ_BL_list.append(blank_list)
-            BJ_BL_list.append(blank_list)
+           
             print(len(BJ_BL_list))
             continue
         # elem_searchword.send_keys(Keys.ENTER)
         time.sleep(randomC)
+       
+        #ユーザアイコン取得
+        try:
+            account_icon = driver.find_element(By.CLASS_NAME,'css-9pa8cd')
+            account_icon = account_icon.get_attribute('src')
+            account_icon = '=image("{}")'.format(account_icon)
+        except:
+            account_icon = '-'
+            
+        print(account_icon)
         try:
             #ユーザープロフィール取得
             # acount_name = driver.find_element(By.XPATH,'//*[@id="react-root"]/div/div/div[2]/main/div/div/div/div/div/div[1]/div[1]/div/div/div/div/div/div[2]/div/h2/div/div/div/div/span[1]/span/span[1]').text
@@ -169,7 +188,7 @@ for file_count in range(0,len(account_file_list),1):
             # フォロアー	
             acount_profile_block = driver.find_element(By.CLASS_NAME,'css-1dbjc4n.r-1ifxtd0.r-ymttw5.r-ttdzmv').text
         except:
-            output_list = [account_name,user_name,'アカウントエラー','アカウントエラー','アカウントエラー','アカウントエラー','アカウントエラー','アカウントエラー','アカウントエラー']
+            output_list = [account_name,user_name,account_icon,'アカウントエラー','アカウントエラー','アカウントエラー','アカウントエラー','アカウントエラー','アカウントエラー','アカウントエラー']
             print(output_list)
             #追加用のdf
             with open('all_user.csv',"a",newline='',encoding="cp932", errors='replace') as f:
@@ -177,14 +196,12 @@ for file_count in range(0,len(account_file_list),1):
                 writer.writerow(output_list)
             f.close()
             #update用リスト
-            col_E_list.append(output_list[3])
-            col_E_list.append(blank_list)
-            col_E_list.append(blank_list)
-            col_E_list.append(blank_list)
+            col_B_list.append([output_list[2]])
+      
+            col_E_list.append([output_list[3]])
+        
             BJ_BL_list.append([output_list[6],output_list[7],output_list[8],output_list[0]])
-            BJ_BL_list.append(blank_list)
-            BJ_BL_list.append(blank_list)
-            BJ_BL_list.append(blank_list)
+       
             print(len(BJ_BL_list))
             continue
         acount_profile_blocks = acount_profile_block.splitlines()
@@ -205,7 +222,7 @@ for file_count in range(0,len(account_file_list),1):
         # print(acount_profile_blocks[2])
         # print(acount_follower)
         # print(acount_meta)
-        combined_text = f"{acount_profile_blocks[1]}\n{acount_profile_blocks[2]}\n{acount_meta}"
+        combined_text = '{}\n{}\n{}'.format(acount_profile_blocks[1],acount_profile_blocks[2],acount_meta)
         # print(combined_text)
         time.sleep(randomC)
         #13000pixilずつスクロールするfor文
@@ -217,48 +234,51 @@ for file_count in range(0,len(account_file_list),1):
         try:
             messege_block = driver.find_elements(By.CLASS_NAME,'css-1dbjc4n.r-16y2uox.r-1wbh5a2.r-1ny4l3l')
         except:
-            output_list = [account_name,user_name,'エラー','エラー','エラー','エラー','エラー','エラー','エラー']
+            output_list = [account_name,user_name,account_icon,'エラー','エラー','エラー','エラー','エラー','エラー','エラー']
             #追加用のdf
             with open('all_user.csv',"a",newline='',encoding="cp932", errors='replace') as f:
                 writer = csv.writer(f,quoting=csv.QUOTE_ALL)
                 writer.writerow(output_list)
             f.close()
             #update用リスト
-            col_E_list.append(output_list[3])
-            col_E_list.append(blank_list)
-            col_E_list.append(blank_list)
-            col_E_list.append(blank_list)
+            col_B_list.append([output_list[2]])
+         
+            col_E_list.append([output_list[3]])
+          
             BJ_BL_list.append([output_list[6],output_list[7],output_list[8],output_list[0]])
-            BJ_BL_list.append(blank_list)
-            BJ_BL_list.append(blank_list)
-            BJ_BL_list.append(blank_list)
+          
             print(len(BJ_BL_list))
             continue
         
         # ツイート内容
         
         messeges = driver.find_elements(By.CLASS_NAME,'css-901oao.r-18jsvk2.r-37j5jr.r-a023e6.r-16dba41.r-rjixqe.r-bcqeeo.r-bnwqim.r-qvutc0')
+        messeges_name = driver.find_elements(By.CLASS_NAME,'css-1dbjc4n.r-1wbh5a2.r-dnmrzs')
+        m_count = len(messeges)
         tweets = []
+        tweets_name = []
         for param in messeges:
             param = param.text
             tweets.append(param)
+        for param in messeges_name:
+            param = param.text
+            tweets_name.append(param)
+            
         print('tweetの数は{}'.format(len(tweets)))
         if len(tweets) == 0:
-            output_list = [account_name,user_name,'エラー','エラー','エラー','エラー','エラー','エラー','エラー']
+            output_list = [account_name,user_name,account_icon,'エラー','エラー','エラー','エラー','エラー','エラー','エラー']
             #追加用のdf
             with open('all_user.csv',"a",newline='',encoding="cp932", errors='replace') as f:
                 writer = csv.writer(f,quoting=csv.QUOTE_ALL)
                 writer.writerow(output_list)
             f.close()
             #update用リスト
-            col_E_list.append(output_list[3])
-            col_E_list.append(blank_list)
-            col_E_list.append(blank_list)
-            col_E_list.append(blank_list)
+            col_B_list.append([output_list[2]])
+        
+            col_E_list.append([output_list[3]])
+         
             BJ_BL_list.append([output_list[6],output_list[7],output_list[8],output_list[0]])
-            BJ_BL_list.append(blank_list)
-            BJ_BL_list.append(blank_list)
-            BJ_BL_list.append(blank_list)
+            
             print(len(BJ_BL_list))
             continue
         else:
@@ -276,43 +296,34 @@ for file_count in range(0,len(account_file_list),1):
         m_count = len(messege_blocks)
         print('messege_blocksの数は{}'.format(m_count))
         
-        for k in range(0,2,1):
+        #比較用のリスト
+        output_all_list = []
+        rank_list = []
+        
+        for k in range(0,m_count,1):
             #messege_blockのなかにビューとライクに関するテキストを正規表現かリストで抜き出す
-            RT_pattern = r'\d+ 件のリツイート。'
-            view_pattern = r'\d{1,3}(,\d{3})* 件の表示。' 
-            like_pattern = r'\d{1,3}(,\d{3})* 件のいいね。'
+            RT_pattern = r'\d{1,8} 件のリツイート。'
+            view_pattern = r'\d{1,8} 件の表示。' 
+            like_pattern = r'\d{1,8} 件のいいね。'
             pined_pattern = r'固定されたツイート'
+            RT_tweet_pattern = r'がリツイートしました'
             # #messege_blocks[]からカンマを消す
             # messege_blocks[k] = messege_blocks[k].replace(',','')
             # 正規表現パターンとテキストをマッチングする
-            RT_match = re.search(RT_pattern, messege_blocks[k])
-            view_match = re.search(view_pattern, messege_blocks[k])
-            like_match = re.search(like_pattern, messege_blocks[k])
-            pined_match = re.search(pined_pattern, messege_blocks[k])
+            try:
+                RT_match = re.search(RT_pattern, messege_blocks[k])
+                view_match = re.search(view_pattern, messege_blocks[k])
+                like_match = re.search(like_pattern, messege_blocks[k])
+                pined_match = re.search(pined_pattern, messege_blocks[k])
+                RT_tweet_match = re.search(RT_tweet_pattern, messege_blocks[k])
+            except:
+                continue
             try:
                 tweet = tweets[k]
             except:
-                output_list = [account_name,user_name,'エラー','エラー','エラー','エラー','エラー','エラー','エラー']
-                #追加用のdf
-                with open('all_user.csv',"a",newline='',encoding="cp932", errors='replace') as f:
-                    writer = csv.writer(f,quoting=csv.QUOTE_ALL)
-                    writer.writerow(output_list)
-                f.close()
-
-                    #update用リスト
-                col_E_list.append(output_list[3])
-                col_E_list.append(blank_list)
-                col_E_list.append(blank_list)
-                col_E_list.append(blank_list)
-                BJ_BL_list.append([output_list[6],output_list[7],output_list[8],output_list[0]])
-                BJ_BL_list.append(blank_list)
-                BJ_BL_list.append(blank_list)
-                BJ_BL_list.append(blank_list)
-                print(len(BJ_BL_list))
-                continue
-                
-            # 出力用リスト
-            output_list = []
+                tweet = '-'
+                       
+           
             # マッチが見つかった場合は、マッチング結果を出力する
             
             if RT_match:
@@ -339,40 +350,134 @@ for file_count in range(0,len(account_file_list),1):
                 continue    
             else:
                 print("固定ツイートではない")
+                
+            if RT_tweet_match:
+               print("Match found", RT_tweet_match.group())
+               if user_name == messeges_name[k]:
+                  pass
+               else:
+                  continue
+            else:
+                print('対象アカウントのリツイートではない') 
 
-            output_list = [account_name,user_name,acount_profile_blocks[2],combined_text,tweet,acount_follower,view_match,like_match,RT_match]
+            if '万' in str(like_match) and '.' in str(like_match):
+                like_match = str(like_match).replace('万','000').replace('.','')
+            else:
+                like_match = str(like_match).replace('万','0000')
+                
+            if '万' in str(RT_match) and '.' in str(RT_match):
+                RT_match = str(RT_match).replace('万','000').replace('.','')
+            else:
+                RT_match = str(RT_match).replace('万','0000')
+            
+            if '万' in str(acount_follower) and '.' in str(acount_follower):
+                acount_follower = str(acount_follower).replace('万','000').replace('.','')
+            else:
+                acount_follower = str(acount_follower).replace('万','0000')
+                
+            if '万' in str(view_match) and '.' in str(view_match):
+                view_match = str(view_match).replace('万','000').replace('.','')
+            else:
+                view_match = str(view_match).replace('万','0000')
+                
+            
+            
+            
+            try:
+                if '万' in like_match or '万' in RT_match  or '万' in acount_follower  or '万' in view_match :
+                    rank = 'S'
+                    rank_list.append(rank)
+                elif int(like_match) >= 500 and int(RT_match) >= 100 and int(acount_follower) >= 3000 and int(view_match) >= 1500:
+                    rank = 'S'
+                    rank_list.append(rank)
+                elif '-' in like_match or '-' in RT_match  or '-' in acount_follower  or '-' in view_match :
+                    rank = '?'
+                    rank_list.append(rank)
+                elif int(like_match) >= 300 and int(RT_match) >= 50 and int(acount_follower) >= 2000 and int(view_match) >= 1000:
+                    rank = 'A'
+                    rank_list.append(rank)
+                elif int(like_match) >= 200 and int(RT_match) >= 30 and int(acount_follower) >= 1500 and int(view_match) >= 500:
+                    rank = 'B'
+                    rank_list.append(rank)
+                elif int(like_match) >= 100 and int(RT_match) >= 10 and int(acount_follower) >= 1000 and int(view_match) >= 300:
+                    rank = 'C'
+                    rank_list.append(rank)
+                else:
+                    rank = 'D'
+                    rank_list.append(rank)
+            except:
+                rank = '?'
+                rank_list.append(rank)
+                
+            output_list = [account_name,user_name,account_icon,acount_profile_blocks[2],combined_text,tweet,acount_follower,view_match,like_match,RT_match]
             output_list = [x.replace('\n', ' ') for x in output_list]
-            #update用リスト
-            col_E_list.append(output_list[3])
-            col_E_list.append(blank_list)
-            col_E_list.append(blank_list)
-            col_E_list.append(blank_list)
-            BJ_BL_list.append([output_list[6],output_list[7],output_list[8],output_list[0]])
-            BJ_BL_list.append(blank_list)
-            BJ_BL_list.append(blank_list)
-            BJ_BL_list.append(blank_list)
-            print(len(BJ_BL_list))
-            # print(output_list)
-            #追加用のdf
-            with open('all_user.csv',"a",newline='',encoding="cp932", errors='replace') as f:
-                writer = csv.writer(f,quoting=csv.QUOTE_ALL)
-                writer.writerow(output_list)
-            f.close()
-            break
+            
+            
+            output_all_list.append(output_list)
+        
+        #output_listを蓄積していき、like数で比較する、エラーの場合は、無視する。
+
+        print(output_all_list)
+        
+        count_all = len(output_all_list)
+        comparison_list = []
+        for q in range(0,count_all,1):
+            try:
+                like_filter = int(output_all_list[q][8])
+            except:
+                like_filter = 0
+            #一番高いqを覚えておいて、qのtweetをBJ_BL_listに入れる
+            comparison_list.append(like_filter)
+        try:    
+            max_value = max(comparison_list)
+            max_index = comparison_list.index(max_value)
+            print(max_value)
+            print(max_index)
+            print(comparison_list)
+            # output_listを再定義する
+            output_list = output_all_list[max_index]
+            rank = rank_list[max_index]    
+        except:
+            output_list = ['エラー','エラー','エラー','エラー','エラー','エラー','エラー','エラー','エラー']
+            rank = '?'
+            
+    
+        
+            
+        print(output_list)
+        print(rank)  
+        #update用リスト
+        col_E_list.append(output_list[3])
+        
+        BJ_BL_list.append([output_list[6],output_list[7],output_list[8],output_list[0]])
+      
+        print(len(BJ_BL_list))
+        # print(output_list)
+        #追加用のdf
+        with open('all_user.csv',"a",newline='',encoding="cp932", errors='replace') as f:
+            writer = csv.writer(f,quoting=csv.QUOTE_ALL)
+            writer.writerow(output_list)
+        f.close()
+      
 # スプレッドシートを開く
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-import xlrd
+
 
 scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
 creds = ServiceAccountCredentials.from_json_keyfile_name('ondemand-380101-8fe6bd6d0cb0.json', scope)
 client = gspread.authorize(creds)
-spreadsheet_name = 'TWダッシュボード のコピー'
+spreadsheet_name = 'TWダッシュボード'
 worksheet_name = 'TWダッシュボード'
 sheet = client.open(spreadsheet_name).worksheet(worksheet_name)
-sheet.update('E19', col_E_list)
-print(len(BJ_BL_list))
-sheet.update('BT19', BJ_BL_list)
+sheet.update('D9', col_B_list)
+sheet = client.open(spreadsheet_name).worksheet(worksheet_name)
+sheet.update('G19', col_E_list)
+# cell = sheet.find("\'=")
+# sheet.update_cell(cell.row, cell.col, '=')
+# print(len(BJ_BL_list))
+sheet = client.open(spreadsheet_name).worksheet(worksheet_name)
+sheet.update('CG19', BJ_BL_list)
 
 
 
